@@ -13,6 +13,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 // // TODO: Implement the dataLayer logic
 
 const todosTable = process.env.TODOS_TABLE
+const todoIndex = process.env.TODOS_CREATED_AT_INDEX
 const docClient: DocumentClient = createDynamoDBClient()
 
 export async function createTodo (todoIitem: TodoItem): Promise<TodoItem> {
@@ -24,7 +25,7 @@ export async function createTodo (todoIitem: TodoItem): Promise<TodoItem> {
     return todoIitem
 }
 
-export async function getTodoItemsByUserId(userId: string){
+export async function getTodoItemsByUserId(userId: string): Promise<TodoItem[]> {
   const result = await docClient.query({
     TableName: todosTable,
     KeyConditionExpression: 'userId = :userId',
@@ -32,7 +33,38 @@ export async function getTodoItemsByUserId(userId: string){
       ':userId': userId
     }
   }).promise()
-  return result.Items
+  const items = result.Items
+  return items as TodoItem[]
+}
+
+export async function getTodoItemById(itemId: string): Promise<TodoItem> {
+  const result = await docClient.query({
+    TableName: todosTable,
+    IndexName: todoIndex,
+    KeyConditionExpression: 'todoId = :todoId',
+    ExpressionAttributeValues: {
+      ':todoId': itemId
+    }
+  }).promise()
+  const items = result.Items
+  if(items.length !== 0) return result.Items[0] as TodoItem
+  return null
+}
+
+export async function updateTodoItem(todoIitem: TodoItem): Promise<TodoItem> {
+  const result = await docClient.update({
+    TableName: todosTable,
+    Key: {
+      userId: todoIitem.userId,
+      todoId: todoIitem.todoId,
+    },
+    UpdateExpression: 'set attachmentUrl = :attachmentUrl',
+    ExpressionAttributeValues: {
+      ':attachmentUrl': todoIitem.attachmentUrl
+    }
+  }).promise()
+  
+  return result.Attributes as TodoItem
 }
 
 function createDynamoDBClient() {
