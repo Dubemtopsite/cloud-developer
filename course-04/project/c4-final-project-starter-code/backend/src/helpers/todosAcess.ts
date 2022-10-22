@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk'
-import * as AWSXRay from 'aws-xray-sdk'
+const AWSXRay = require('aws-xray-sdk')
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 // import { createLogger } from '../utils/logger'
 // import { TodoUpdate } from '../models/TodoUpdate';
@@ -18,10 +18,21 @@ const docClient: DocumentClient = createDynamoDBClient()
 export async function createTodo (todoIitem: TodoItem): Promise<TodoItem> {
     await docClient.put({
       TableName: todosTable,
-      Item: todoIitem
+      Item: todoIitem,
     }).promise()
 
     return todoIitem
+}
+
+export async function getTodoItemsByUserId(userId: string){
+  const result = await docClient.query({
+    TableName: todosTable,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': userId
+    }
+  }).promise()
+  return result.Items
 }
 
 function createDynamoDBClient() {
