@@ -25,10 +25,12 @@ provider:
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-c4-todo-pictures-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-c4-todo-project-pictures-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_SECRET_ID: HLAv_W6EQKl62oXBc6C-L8fBGuY4rmxuSizc5ANHB5XT_bhhlXpjt-rF2d10OXJi
     AUTH_0_SECRET_FIELD: auth0Secret
+    S3_ACCESS_KEY: AKIAU5AQMFGZG7CFZ2WM
+    S3_SECRET_KEY: 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
 
   logs:
     # Enable API Gateway logs
@@ -127,12 +129,12 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:Query
+          - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
       - Effect: Allow
         Action:
-          - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
       - Effect: Allow
         Action:
           - s3:PutObject
