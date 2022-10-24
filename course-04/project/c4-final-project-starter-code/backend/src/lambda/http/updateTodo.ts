@@ -6,7 +6,7 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 
 //import { updateTodo } from '../../businessLogic/todos'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-import { getTodoItemById, updateMultipleTodoItem } from '../../helpers/todosAcess'
+import { getTodoItemById, updateMultipleTodoItem } from '../../dataLayer/todosAcess'
 //import { getUserId } from '../utils'
 
 export const handler = middy(
