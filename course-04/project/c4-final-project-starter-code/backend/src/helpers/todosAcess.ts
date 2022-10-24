@@ -75,11 +75,14 @@ export async function updateMultipleTodoItem(todoIitem: UpdateTodoRequest, todoI
       userId: userId,
       todoId: todoId,
     },
-    UpdateExpression: 'set dueDate = :dueDate, name = :name, done = :done',
+    UpdateExpression: 'set dueDate = :dueDate, #itemname = :name, done = :done',
     ExpressionAttributeValues: {
       ':dueDate': todoIitem.dueDate,
       ':name': todoIitem.name,
       ':done': todoIitem.done
+    },
+    ExpressionAttributeNames: {
+      "#itemname": "name"
     }
   }).promise()
   
