@@ -5,6 +5,7 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 // import { TodoUpdate } from '../models/TodoUpdate';
 
 import { TodoItem } from "../models/TodoItem"
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
@@ -64,6 +65,35 @@ export async function updateTodoItem(todoIitem: TodoItem): Promise<TodoItem> {
     }
   }).promise()
   
+  return result.Attributes as TodoItem
+}
+
+export async function updateMultipleTodoItem(todoIitem: UpdateTodoRequest, todoId: string, userId: string): Promise<TodoItem> {
+  const result = await docClient.update({
+    TableName: todosTable,
+    Key: {
+      userId: userId,
+      todoId: todoId,
+    },
+    UpdateExpression: 'set dueDate = :dueDate, name = :name, done = :done',
+    ExpressionAttributeValues: {
+      ':dueDate': todoIitem.dueDate,
+      ':name': todoIitem.name,
+      ':done': todoIitem.done
+    }
+  }).promise()
+  
+  return result.Attributes as TodoItem
+}
+
+export async function deleteTodoItemById(todoId: string, userId: string): Promise<TodoItem> {
+  const result = await docClient.delete({
+    TableName: todosTable,
+    Key: {
+      userId: userId,
+      todoId: todoId,
+    }
+  }).promise()
   return result.Attributes as TodoItem
 }
 
