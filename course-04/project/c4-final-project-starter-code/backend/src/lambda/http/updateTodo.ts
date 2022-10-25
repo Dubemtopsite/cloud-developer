@@ -5,17 +5,25 @@ import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 
 //import { updateTodo } from '../../businessLogic/todos'
+import { updateTodoItemById } from '../../businessLogic/todos'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-import { getTodoItemById, updateMultipleTodoItem } from '../../dataLayer/todosAcess'
 //import { getUserId } from '../utils'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-    const todoItem = await getTodoItemById(todoId)
+    if(updatedTodo.name.length === 0 || updatedTodo.dueDate.length === 0 || !updatedTodo.done){
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: "Incomplete Request Body"
+        })
+      }
+    }
+    //const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+    await updateTodoItemById(todoId, event)
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
-    await updateMultipleTodoItem(updatedTodo, todoId, todoItem.userId)
 
 
     return {
